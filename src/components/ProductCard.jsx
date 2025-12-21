@@ -29,13 +29,18 @@ const ProductCard = ({ product }) => {
         <h3 className="font-semibold text-gray-800 truncate">{product.name}</h3>
 
         <p className="text-lg font-bold text-red-500">₹{product.price}</p>
-
         <button
           onClick={addToCartHandler}
-          className="mt-3 w-full flex items-center justify-center gap-2 bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+          className="group mt-3 w-full flex items-center justify-center gap-2 
+             bg-blue-600 text-white py-2 rounded-lg overflow-hidden
+             transition-all duration-300 hover:bg-blue-700 active:scale-95"
         >
-          <FiShoppingCart />
-          Add to Cart
+          <FiShoppingCart className="transition-transform duration-300 group-hover:translate-x-1" />
+          <span className="relative">
+            <span className="block transition-transform duration-300 group-hover:-translate-y-1">
+              Add to Cart
+            </span>
+          </span>
         </button>
       </div>
     </div>

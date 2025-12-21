@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 
 /* Layout */
 import Header from './components/Header';
@@ -7,27 +7,33 @@ import Footer from './components/Footer';
 /* Pages */
 import Home from './pages/Home';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import MyOrders from './pages/MyOrders';
 
 /* Admin Pages */
+import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminProducts from './pages/admin/AdminProducts';
 import AdminOrders from './pages/admin/AdminOrders';
+import AdminCreateProduct from './pages/admin/AdminCreateProduct';
+import AdminEditProduct from './pages/admin/AdminEditProduct';
 
 /* Route Guards */
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminRoute from './components/AdminRoute';
-import Register from './pages/Register';
-import AdminCreateProduct from './pages/admin/AdminCreateProduct';
-import AdminEditProduct from './pages/admin/AdminEditProduct';
-import AdminDashboard from './pages/admin/AdminDashboard';
 
-const App = () => {
+/* ===== Layout Wrapper ===== */
+const Layout = () => {
+  const location = useLocation();
+
+  // Routes where Header & Footer should be hidden
+  const hideLayoutRoutes = ['/login', '/register'];
+  const hideLayout = hideLayoutRoutes.includes(location.pathname);
+
   return (
-    <BrowserRouter>
-      {/* Global Layout */}
-      <Header />
+    <>
+      {!hideLayout && <Header />}
 
       <main className="min-h-screen">
         <Routes>
@@ -35,6 +41,7 @@ const App = () => {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+
           {/* ================= USER PROTECTED ================= */}
           <Route element={<ProtectedRoute />}>
             <Route path="/cart" element={<Cart />} />
@@ -53,7 +60,15 @@ const App = () => {
         </Routes>
       </main>
 
-      <Footer />
+      {!hideLayout && <Footer />}
+    </>
+  );
+};
+
+const App = () => {
+  return (
+    <BrowserRouter>
+      <Layout />
     </BrowserRouter>
   );
 };
