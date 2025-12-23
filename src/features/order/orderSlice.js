@@ -1,8 +1,9 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { createOrderApi, fetchMyOrdersApi } from './orderService';
+import api from '../../services/api';
 
 /* ================================
-   CREATE ORDER (Checkout)
+   CREATE ORDER
 ================================ */
 export const createOrder = createAsyncThunk('order/create', async (orderData, thunkAPI) => {
   try {
@@ -13,7 +14,25 @@ export const createOrder = createAsyncThunk('order/create', async (orderData, th
 });
 
 /* ================================
-   FETCH MY ORDERS (Order History)
+   DUMMY PAYMENT
+================================ */
+export const payDummyOrder = createAsyncThunk(
+  'order/payDummy',
+  async ({ orderId, method }, thunkAPI) => {
+    try {
+      const { data } = await api.post('/payment/dummy', {
+        orderId,
+        method,
+      });
+      return data.order;
+    } catch {
+      return thunkAPI.rejectWithValue('Payment failed');
+    }
+  }
+);
+
+/* ================================
+   FETCH MY ORDERS
 ================================ */
 export const fetchMyOrders = createAsyncThunk('order/myOrders', async (_, thunkAPI) => {
   try {
@@ -31,22 +50,24 @@ const orderSlice = createSlice({
   initialState: {
     loading: false,
     success: false,
+    paymentSuccess: false,
     error: null,
 
-    order: null, // single order (after checkout)
-    orders: [], // order history (my orders)
+    order: null,
+    orders: [],
   },
   reducers: {
     resetOrder: (state) => {
       state.loading = false;
       state.success = false;
+      state.paymentSuccess = false;
       state.error = null;
       state.order = null;
     },
   },
   extraReducers: (builder) => {
     builder
-      /* ---------- CREATE ORDER ---------- */
+      /* CREATE ORDER */
       .addCase(createOrder.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -61,10 +82,23 @@ const orderSlice = createSlice({
         state.error = action.payload;
       })
 
-      /* ---------- FETCH MY ORDERS ---------- */
+      /* DUMMY PAYMENT */
+      .addCase(payDummyOrder.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(payDummyOrder.fulfilled, (state, action) => {
+        state.loading = false;
+        state.paymentSuccess = true;
+        state.order = action.payload;
+      })
+      .addCase(payDummyOrder.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      /* MY ORDERS */
       .addCase(fetchMyOrders.pending, (state) => {
         state.loading = true;
-        state.error = null;
       })
       .addCase(fetchMyOrders.fulfilled, (state, action) => {
         state.loading = false;

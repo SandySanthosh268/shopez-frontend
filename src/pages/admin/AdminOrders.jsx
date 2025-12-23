@@ -1,10 +1,9 @@
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchAllOrders, markOrderDelivered } from '../../features/admin/adminOrderSlice';
+import { fetchAllOrders, updateOrderStatus } from '../../features/admin/adminOrderSlice';
 
 const AdminOrders = () => {
   const dispatch = useDispatch();
-
   const { orders, loading, error } = useSelector((state) => state.adminOrders);
 
   useEffect(() => {
@@ -13,7 +12,7 @@ const AdminOrders = () => {
 
   return (
     <div className="max-w-7xl mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-6">Orders</h2>
+      <h2 className="text-2xl font-bold mb-6">Admin Orders</h2>
 
       {loading && <p>Loading orders...</p>}
       {error && <p className="text-red-500">{error}</p>}
@@ -25,29 +24,37 @@ const AdminOrders = () => {
               <th className="border p-2">Order ID</th>
               <th className="border p-2">User</th>
               <th className="border p-2">Total</th>
-              <th className="border p-2">Paid</th>
-              <th className="border p-2">Delivered</th>
-              <th className="border p-2">Action</th>
+              <th className="border p-2">Payment</th>
+              <th className="border p-2">Status</th>
             </tr>
           </thead>
 
           <tbody>
             {orders.map((order) => (
               <tr key={order._id} className="text-center">
-                <td className="border p-2 text-xs">{order._id}</td>
+                <td className="border p-2 text-xs">{order._id.slice(-6)}</td>
                 <td className="border p-2">{order.user?.name || 'N/A'}</td>
                 <td className="border p-2">₹{order.totalPrice}</td>
-                <td className="border p-2">{order.isPaid ? 'Yes' : 'No'}</td>
-                <td className="border p-2">{order.isDelivered ? 'Yes' : 'No'}</td>
+                <td className="border p-2">{order.isPaid ? 'Paid' : 'Pending'}</td>
+
+                {/* STATUS DROPDOWN */}
                 <td className="border p-2">
-                  {!order.isDelivered && (
-                    <button
-                      onClick={() => dispatch(markOrderDelivered(order._id))}
-                      className="bg-green-600 text-white px-3 py-1 rounded"
-                    >
-                      Mark Delivered
-                    </button>
-                  )}
+                  <select
+                    value={order.status}
+                    onChange={(e) =>
+                      dispatch(
+                        updateOrderStatus({
+                          id: order._id,
+                          status: e.target.value,
+                        })
+                      )
+                    }
+                    className="border rounded px-2 py-1"
+                  >
+                    <option value="Processing">Processing</option>
+                    <option value="Shipped">Shipped</option>
+                    <option value="Delivered">Delivered</option>
+                  </select>
                 </td>
               </tr>
             ))}

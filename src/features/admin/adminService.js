@@ -18,6 +18,7 @@ export const fetchAllOrdersApi = async () => {
 };
 
 export const updateOrderStatusApi = async ({ id, status }) => {
-  const response = await api.put(`/orders/${id}`, { status });
-  return response.data;
+  const { data } = await api.put(`/orders/${id}/status`, { status });
+  return data;
 };
+
